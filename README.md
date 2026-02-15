@@ -50,7 +50,7 @@ pip install cudf-cu12
 python data/synthetic/generate_telemetry.py --rows 5000000 --output-dir data/synthetic --format parquet
 ```
 
-### Deploy NIM on GKE (Course 1)
+### Deploy NIM on GKE
 
 1. Set environment variables: `PROJECT_ID`, `ZONE`, `NGC_CLI_API_KEY`
 2. Run `src/deploy/gke/cluster_setup.sh`
