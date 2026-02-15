@@ -11,7 +11,7 @@ CAN bus, LiDAR, camera, IMU from real autonomous vehicles. Requires conversion t
 LiDAR, camera, GPS/IMU from real driving. Raw and derived formats. https://www.cvlibs.net/datasets/kitti/
 
 ### Waymo Open Dataset
-LiDAR, camera, map data from Waymo autonomous vehicles. Public subset available. https://waymo.com/open/
+LiDAR, camera, map data autonomous vehicles. Public subset available. https://waymo.com/open/
 
 ## Simulators
 

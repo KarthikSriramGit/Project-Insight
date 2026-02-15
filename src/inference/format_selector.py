@@ -1,5 +1,5 @@
 """
-Model format selector based on Course 2 (Intro to Inference) lifecycle table.
+Model format selector based on lifecycle table.
 
 Format choice determines where a model can run: Safetensors for sharing,
 GGUF for local/quantized, TensorRT for production on NVIDIA GPUs, ONNX for portability.
@@ -45,9 +45,6 @@ def select_format(
 ) -> tuple[Format, str]:
     """
     Select model format by target use case and hardware.
-
-    Mirrors Course 2 article: Research/Sharing -> Safetensors, Local -> GGUF,
-    Production on NVIDIA -> TensorRT, Portable/heterogeneous -> ONNX.
 
     Args:
         use_case: research, sharing, local, production, portable.

@@ -1,8 +1,5 @@
 """
-Benchmark: pandas vs cuDF for telemetry loading and analytics.
-
-Mirrors Course 3 methodology (swap vs sample vs cuDF+UVM). Measures wall-clock time,
-peak memory, and operation throughput for load, groupby, filter, sort.
+Benchmark: pandas vs cuDF for telemetry loading and analytics. Measures wall-clock time, peak memory, and operation throughput for load, groupby, filter, sort.
 """
 
 import gc

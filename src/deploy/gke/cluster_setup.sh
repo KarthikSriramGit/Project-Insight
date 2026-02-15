@@ -1,6 +1,5 @@
 #!/bin/bash
 # Create GKE cluster with GPU node pool for NVIDIA NIM.
-# Mirrors Course 1: Deploy Faster Generative AI with NVIDIA NIM on GKE.
 
 set -e
 

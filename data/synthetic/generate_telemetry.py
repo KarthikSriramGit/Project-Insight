@@ -1,9 +1,7 @@
 """
 Synthetic telemetry generator for ROS2/NVIDIA DRIVE fleet data.
 
-Generates millions of rows mimicking real sensor streams: IMU (Waymo/Brembo),
-LiDAR (Waymo), CAN bus (Brembo CAN/Ethernet virtual sensors on DRIVE),
-GPS (ROS2 nav), and camera metadata (perception pipelines).
+Generates millions of rows mimicking real sensor streams: IMU, LiDAR, CAN bus, GPS, and camera.
 """
 
 import argparse

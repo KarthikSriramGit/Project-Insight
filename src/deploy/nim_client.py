@@ -1,8 +1,7 @@
 """
 NVIDIA NIM chat completions API client.
 
-Mirrors Course 1 (Deploy Faster Generative AI with NVIDIA NIM on GKE): POST to
-/v1/chat/completions with system/user messages, model meta/llama3-8b-instruct,
+POST to /v1/chat/completions with system/user messages, model meta/llama3-8b-instruct,
 max_tokens, top_p, frequency_penalty.
 """
 

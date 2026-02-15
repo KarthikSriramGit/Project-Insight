@@ -1,8 +1,6 @@
 """
 Inference performance metrics: latency, TTFT, throughput, inter-token latency.
-
-Mirrors Course 2 (02_performance_metrics.ipynb): p50/p90 total latency,
-p50/p90 Time to First Token, sustained throughput (tok/s), inter-token latency.
+Metrics: p50/p90 total latency, p50/p90 Time to First Token, sustained throughput (tok/s), p50/p90 inter-token latency.
 """
 
 import time
@@ -26,7 +24,7 @@ def timed_generate(
     """
     Time inference generation over multiple runs.
 
-    Course 2 pattern: measure wall-clock, sync GPU if cuda, return latencies and token count.
+    Measure wall-clock, sync GPU if cuda, return latencies and token count.
 
     Args:
         generate_fn: Callable that returns (output_text_or_ids, num_tokens).
@@ -72,7 +70,7 @@ def compute_metrics(
     """
     Compute p50/p90 latency, TTFT, throughput from raw measurements.
 
-    Course 2 metrics:
+    Metrics:
     - p50/p90 total latency (sec)
     - p50/p90 TTFT (sec)
     - sustained throughput (tokens/sec)

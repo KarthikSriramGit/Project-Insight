@@ -1,6 +1,6 @@
 #!/bin/bash
-# Deploy NVIDIA NIM to GKE. Mirrors Course 1 steps 7.
-# Prerequisites: cluster created (cluster_setup.sh), NGC_CLI_API_KEY set.
+# Deploy NVIDIA NIM to GKE.
+# Prerequisites: cluster created and NGC_CLI_API_KEY set in environment.
 
 set -e
 

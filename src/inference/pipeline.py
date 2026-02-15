@@ -1,8 +1,7 @@
 """
 Inference pipeline: preprocessing, batching, forward pass, decoding, postprocessing.
 
-Mirrors Course 2 (01_foundations_of_inference.ipynb): tokenization with padding,
-attention mask, greedy decoding (logits[:, -1, :].argmax), batch_decode.
+Tokenization with padding, attention mask, greedy decoding (logits[:, -1, :].argmax), batch_decode.
 """
 
 from typing import Any, Optional
@@ -65,7 +64,7 @@ class InferencePipeline:
         max_new_tokens: int,
     ) -> torch.Tensor:
         """
-        Greedy decoding loop. Course 2 pattern:
+        Greedy decoding loop.
         next_id = out.logits[:, -1, :].argmax(dim=-1)
         """
         generated = input_ids.clone()

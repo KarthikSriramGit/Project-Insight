@@ -15,7 +15,7 @@ This project was inspired by three courses from Google for Developers and NVIDIA
 ## Architecture
 
 ```
-Data Layer (Course 3)     Inference Layer (Course 2)    Deployment Layer (Course 1)
+Data Layer               Inference Layer               Deployment Layer 
 Synthetic Generator  -->  cuDF + UVM Loader  -->       Format Selector
                          Benchmark (pandas vs cuDF)    Inference Pipeline
                                                        Metrics (p50, p90, TTFT)
@@ -59,7 +59,7 @@ python data/synthetic/generate_telemetry.py --rows 5000000 --output-dir data/syn
 
 ## Usage
 
-### Data Ingest and Benchmark (Course 3)
+### Data Ingest and Benchmark
 
 ```python
 from src.ingest.cudf_loader import load_telemetry
@@ -74,7 +74,7 @@ engine = TelemetryQueryEngine("data/synthetic/fleet_telemetry.parquet", nim_base
 answer = engine.query("What is the max brake pressure across all vehicles?", sensor_type="can")
 ```
 
-### Format Selection (Course 2)
+### Format Selection
 
 ```python
 from src.inference.format_selector import select_format

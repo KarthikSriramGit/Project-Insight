@@ -1,7 +1,7 @@
 """
 GPU-accelerated telemetry loading with cuDF and Unified Virtual Memory.
 
-Mirrors Course 3 (Speed Up Data Analytics on GPUs) patterns: cudf.set_option('spill', True)
+cudf.set_option('spill', True)
 enables UVM spill so datasets larger than GPU VRAM can be processed by spilling to CPU RAM.
 """
 
