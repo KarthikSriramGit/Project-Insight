@@ -2,91 +2,63 @@
 
 A pipeline for robotics and autonomous systems that turns fleet telemetry into natural-language insights. Combines GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
 
+## Run on Colab
+
+| Notebook | Description |
+|----------|-------------|
+| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark |
+| [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, TinyLlama inference |
+| [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline: retrieve data, NIM summarization |
+
+Open any notebook and run all cells. Use **Runtime > Change runtime type > GPU** for faster execution.
+
 ## Inspiration
 
 This project was inspired by three courses from Google for Developers and NVIDIA:
 
-1. [Deploy Faster Generative AI models with NVIDIA NIM on GKE](https://developers.google.com/learn/pathways/deploy-faster-gen-ai-models-nvidia-gke): Learned to deploy pre-built LLM inference on GKE with Helm and a GPU node pool. No custom inference code, just config and an API. NIM is the default when a chat/completion API is needed in the cloud.
+1. [Deploy Faster Generative AI models with NVIDIA NIM on GKE](https://developers.google.com/learn/pathways/deploy-faster-gen-ai-models-nvidia-gke): Deploy pre-built LLM inference on GKE with Helm and a GPU node pool.
 
-2. [Intro to Inference: How to Run AI Models on a GPU](https://developers.google.com/learn/pathways/ai-models-on-gpu-intro): Learned that model format determines where a model can run. Safetensors for sharing, GGUF for local/quantized, TensorRT for production on NVIDIA GPUs, ONNX for portability. Format is chosen by target (local vs cloud, CPU vs GPU) from the start.
+2. [Intro to Inference: How to Run AI Models on a GPU](https://developers.google.com/learn/pathways/ai-models-on-gpu-intro): Model format selection (Safetensors, GGUF, TensorRT, ONNX) for different targets.
 
-3. [Speed Up Data Analytics on GPUs](https://developers.google.com/learn/pathways/speed-up-data-analytics-GPUs): Learned that cuDF with Unified Virtual Memory lets you use GPU speed and spill to CPU RAM, avoiding pandas OOM on large CSVs. With cudf.pandas, existing pandas code can get GPU acceleration.
+3. [Speed Up Data Analytics on GPUs](https://developers.google.com/learn/pathways/speed-up-data-analytics-GPUs): cuDF with Unified Virtual Memory for GPU-accelerated analytics.
 
 ## Architecture
 
 ```
-Data Layer               Inference Layer               Deployment Layer 
+Data Layer               Inference Layer               Deployment Layer
 Synthetic Generator  -->  cuDF + UVM Loader  -->       Format Selector
                          Benchmark (pandas vs cuDF)    Inference Pipeline
                                                        Metrics (p50, p90, TTFT)
                          Query Engine  <--  NIM Client  <--  NIM on GKE
 ```
 
-The pipeline ingests large ROS2/DRIVE-style telemetry with cuDF and UVM, serves natural-language queries via NIM on GKE, and applies the right inference format for production.
+## Deploy NIM on GKE (for notebook 03)
 
-## Setup
+Use [Google Cloud Shell](https://shell.cloud.google.com) (browser-based Linux). From the project directory:
 
-### Prerequisites
+1. Get your NGC API key from [ngc.nvidia.com](https://ngc.nvidia.com) → Profile → Setup → Generate API Key.
 
-- Python 3.10+
-- NVIDIA GPU (optional, for cuDF; pipeline falls back to pandas without it)
-- Google Cloud project with billing (for GKE/NIM deployment)
-
-### Install
+2. Set environment variables and run the deploy scripts:
 
 ```bash
-pip install -r requirements.txt
+export PROJECT_ID="your-gcp-project-id"
+export ZONE="us-central1-a"
+export REGION="us-central1"
+export NGC_CLI_API_KEY="your-ngc-api-key"
+
+./src/deploy/gke/cluster_setup.sh
+gcloud container clusters get-credentials nim-demo --zone=$ZONE
+./src/deploy/gke/deploy_nim.sh
 ```
 
-For GPU acceleration:
+3. Expose NIM with a LoadBalancer so Colab can reach it:
 
 ```bash
-pip install cudf-cu12
+kubectl expose deployment my-nim-nim-llm -n nim --type=LoadBalancer --port=8000
+kubectl get svc -n nim
 ```
 
-### Generate Synthetic Data
-
-```bash
-python data/synthetic/generate_telemetry.py --rows 5000000 --output-dir data/synthetic --format parquet
-```
-
-### Deploy NIM on GKE
-
-1. Create `nv_api_key.txt` in the project root with your NGC API key (from [ngc.nvidia.com](https://ngc.nvidia.com) Setup). This file is in `.gitignore` and must not be committed.
-2. Set environment variables: `PROJECT_ID`, `ZONE`, and `NGC_CLI_API_KEY` (or load from `nv_api_key.txt`).
-3. Run `src/deploy/gke/cluster_setup.sh`
-4. Run `src/deploy/gke/deploy_nim.sh`
-5. Port-forward: `kubectl port-forward service/my-nim-nim-llm 8000:8000 -n nim`
-
-**PowerShell (load NGC key from `nv_api_key.txt`; run from project root):**
-```powershell
-$env:NGC_CLI_API_KEY = (Get-Content "nv_api_key.txt" -Raw).Trim()
-```
-
-## Usage
-
-### Data Ingest and Benchmark
-
-```python
-from src.ingest.cudf_loader import load_telemetry
-df = load_telemetry("data/synthetic/fleet_telemetry.parquet", spill=True)
-```
-
-### Query Telemetry with NIM
-
-```python
-from src.query.engine import TelemetryQueryEngine
-engine = TelemetryQueryEngine("data/synthetic/fleet_telemetry.parquet", nim_base_url="http://localhost:8000")
-answer = engine.query("What is the max brake pressure across all vehicles?", sensor_type="can")
-```
-
-### Format Selection
-
-```python
-from src.inference.format_selector import select_format
-fmt, rationale = select_format("production", hardware="gpu")
-# Returns: ("tensorrt", "Compiled engine for NVIDIA GPUs...")
-```
+4. Set `NIM_BASE_URL` in notebook 03 to your service external IP (e.g. `http://34.x.x.x:8000`).
 
 ## Real Data
 
@@ -94,12 +66,7 @@ See [data/README_data_sources.md](data/README_data_sources.md) for a plan to gat
 
 ## Contributing
 
-Contributions are welcome. If you have completed the Google for Developers and NVIDIA courses linked above, your experience with NIM on GKE, inference formats, or cuDF is especially valuable. Areas to contribute:
-
-- Adapters for nuScenes, KITTI, or other datasets
-- ROS2 bag-to-Parquet conversion scripts
-- NIM prompt templates for telemetry-specific queries
-- Benchmark results on different GPU configurations
+Contributions are welcome. Areas to contribute: adapters for nuScenes/KITTI, ROS2 bag-to-Parquet scripts, NIM prompt templates, benchmark results on different GPU configurations.
 
 ## License
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Deploy NVIDIA NIM to GKE.
 # Prerequisites: cluster created and NGC_CLI_API_KEY set in environment.
-# To load from nv_api_key.txt in project root: export NGC_CLI_API_KEY=$(cat nv_api_key.txt)
+# In Cloud Shell: export NGC_CLI_API_KEY="your-key"
 
 set -e
 
