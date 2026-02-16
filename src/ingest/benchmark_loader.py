@@ -17,26 +17,6 @@ except ImportError:
     CUDF_AVAILABLE = False
 
 
-def _get_memory_mb() -> float:
-    """Approximate current process memory usage in MB. Cross-platform via psutil."""
-    try:
-        import psutil
-
-        return psutil.Process().memory_info().rss / (1024 * 1024)
-    except ImportError:
-        pass
-    try:
-        import resource
-        import sys
-
-        val = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        if sys.platform == "darwin":
-            return val / (1024 * 1024)
-        return val / 1024
-    except Exception:
-        return 0.0
-
-
 def _measure(
     fn: Callable[[], Any],
     warmup: int = 1,
@@ -45,13 +25,23 @@ def _measure(
     for _ in range(warmup):
         _ = fn()
     gc.collect()
-    m0 = _get_memory_mb()
-    t0 = time.perf_counter()
-    result = fn()
-    elapsed = time.perf_counter() - t0
-    m1 = _get_memory_mb()
-    peak_mb = max(m0, m1)
-    return elapsed, peak_mb, result
+
+    try:
+        import tracemalloc
+
+        tracemalloc.start()
+        t0 = time.perf_counter()
+        result = fn()
+        elapsed = time.perf_counter() - t0
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        peak_mb = peak / (1024 * 1024)
+        return elapsed, peak_mb, result
+    except Exception:
+        t0 = time.perf_counter()
+        result = fn()
+        elapsed = time.perf_counter() - t0
+        return elapsed, 0.0, result
 
 
 def load_pandas(path: Path) -> pd.DataFrame:
