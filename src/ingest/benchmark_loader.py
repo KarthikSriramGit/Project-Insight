@@ -18,11 +18,21 @@ except ImportError:
 
 
 def _get_memory_mb() -> float:
-    """Approximate current process memory usage in MB."""
+    """Approximate current process memory usage in MB. Cross-platform via psutil."""
+    try:
+        import psutil
+
+        return psutil.Process().memory_info().rss / (1024 * 1024)
+    except ImportError:
+        pass
     try:
         import resource
+        import sys
 
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        val = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        if sys.platform == "darwin":
+            return val / (1024 * 1024)
+        return val / 1024
     except Exception:
         return 0.0
 
@@ -35,8 +45,8 @@ def _measure(
     for _ in range(warmup):
         _ = fn()
     gc.collect()
-    t0 = time.perf_counter()
     m0 = _get_memory_mb()
+    t0 = time.perf_counter()
     result = fn()
     elapsed = time.perf_counter() - t0
     m1 = _get_memory_mb()
@@ -52,7 +62,7 @@ def load_pandas(path: Path) -> pd.DataFrame:
 
 
 def load_cudf(path: Path, spill: bool = True) -> "cudf.DataFrame":
-    """Load with cuDF and UVM spill (Course 3 pattern)."""
+    """Load with cuDF and UVM spill."""
     if not CUDF_AVAILABLE:
         raise RuntimeError("cuDF not installed")
     cudf.set_option("spill", spill)
