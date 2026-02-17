@@ -19,7 +19,7 @@ except ImportError:
 
 def _measure(
     fn: Callable[[], Any],
-    warmup: int = 1,
+    warmup: int = 2,
 ) -> tuple[float, float, Any]:
     """Run function, return (elapsed_sec, peak_memory_mb, result)."""
     for _ in range(warmup):

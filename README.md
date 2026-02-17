@@ -63,9 +63,10 @@ gcloud container clusters get-credentials nim-demo --zone=$ZONE
 3. Expose NIM with a LoadBalancer so Colab can reach it:
 
 ```bash
-kubectl expose deployment my-nim-nim-llm -n nim --type=LoadBalancer --port=8000
-kubectl get svc -n nim
+kubectl patch svc my-nim-nim-llm -n nim -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl get svc -n nim -w
 ```
+Wait for `EXTERNAL-IP` (not `<pending>`). Use that IP in notebook 03.
 
 4. Set `NIM_BASE_URL` in notebook 03 to your service external IP (e.g. `http://34.x.x.x:8000`).
 
