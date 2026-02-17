@@ -1,7 +1,7 @@
 # H.E.I.M.D.A.L.L
 
 <p align="center">
-  <img src="docs/assets/images/heimdall_logo.png" alt="Heimdall" width="180" />
+  <img src="docs/assets/images/heimdall_banner.png" alt="H.E.I.M.D.A.L.L" width="100%" style="max-width: 1200px" />
 </p>
 
 **Heroically Excessive Inference Methodology (for) Data Analytics (on) Large Loads**
