@@ -39,7 +39,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  New to the project?                                             │
+│  New to the project?                                            │
 │  → Start with Notebook 01 (Data Ingest) to see cuDF in action   │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
@@ -49,7 +49,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  Need production-scale inference in the cloud?                   │
+│  Need production-scale inference in the cloud?                  │
 │  → Deploy NIM on GKE, then run Notebook 03                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
