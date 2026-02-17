@@ -40,10 +40,4 @@ QUERY_CONFIG = [
         "sensor_type": "can",
         "brake_threshold": 90.0,
     },
-    {
-        "id": "q6",
-        "label": "Model format (general)",
-        "query": "What model format should I use for production inference on NVIDIA GPUs?",
-        "skip_data": True,
-    },
 ]
