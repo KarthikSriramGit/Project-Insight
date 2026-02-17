@@ -104,17 +104,17 @@ kubectl get svc -n nim
    kubectl get pods -n nim
    ```
 
-3. Note your NIM URL: `http://EXTERNAL_IP:8000` (e.g. `http://136.119.171.193:8000`)
+3. Note your NIM URL: `http://EXTERNAL_IP:8000` (replace `EXTERNAL_IP` with the IP from `kubectl get svc -n nim`)
 
 **Do not commit this URL.** Keep it private.
 
 ### Step 6: Run notebook 03 on Colab
 
 1. Open [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/03_query_telemetry.ipynb) in Colab
-2. In the **Setup** cell, replace `YOUR_EXTERNAL_IP` with your NIM external IP:
-   ```python
-   NIM_BASE_URL = "http://YOUR_EXTERNAL_IP:8000"
-   ```
+2. Store your NIM URL securely using **Colab Secrets**:
+   - Click the **key icon** (Secrets) in the left sidebar
+   - Add: Name = `NIM_BASE_URL`, Value = `http://YOUR_EXTERNAL_IP:8000`
+   - Toggle **Notebook access** to ON
 3. Run all cells
 
 ### Troubleshooting: Connection refused from Colab

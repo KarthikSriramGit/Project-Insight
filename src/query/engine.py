@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Optional, Union
 
 from .prompts import SYSTEM_PROMPT, format_user_query
+from ..ingest.telemetry_schema import get_columns_for_sensor
 
 try:
     import cudf
@@ -58,12 +59,24 @@ class TelemetryQueryEngine:
         df: Union[pd.DataFrame, "cudf.DataFrame"],
         max_rows: Optional[int] = None,
     ) -> str:
-        """Convert dataframe slice to string context for prompt."""
+        """Convert dataframe slice to string context for prompt, with summary stats."""
         n = max_rows or self.max_context_rows
-        subset = df.head(n)
-        if hasattr(subset, "to_pandas"):
-            subset = subset.to_pandas()
-        return subset.to_string(max_rows=n)
+
+        # Convert to pandas for string formatting
+        if hasattr(df, "to_pandas"):
+            pdf = df.to_pandas()
+        else:
+            pdf = df
+
+        # Build summary statistics for numeric columns
+        desc = pdf.describe(include="all")
+        stats_str = f"Summary statistics ({len(pdf):,} total rows):\n{desc.to_string()}"
+
+        # Sample rows
+        subset = pdf.head(n)
+        rows_str = f"\nSample rows (first {min(n, len(pdf))}):\n{subset.to_string(max_rows=n)}"
+
+        return stats_str + rows_str
 
     def retrieve(
         self,
@@ -91,6 +104,11 @@ class TelemetryQueryEngine:
             df = filter_by_time_range(df, start_ns, end_ns)
         if sensor_type and "sensor_type" in df.columns:
             df = df[df["sensor_type"] == sensor_type]
+            # Keep only columns relevant to this sensor type (removes NaN-only columns)
+            relevant_cols = get_columns_for_sensor(sensor_type)
+            relevant_cols = [c for c in relevant_cols if c in df.columns]
+            if relevant_cols:
+                df = df[relevant_cols]
         if brake_threshold is not None and "brake_pressure_pct" in df.columns:
             df = df[df["brake_pressure_pct"] > brake_threshold]
 
