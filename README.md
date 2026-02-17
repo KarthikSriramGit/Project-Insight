@@ -8,6 +8,8 @@
 
 A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet telemetry into natural-language insights via GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
 
+*Named after Heimdall, the Norse guardian who sees and hears everything. Like him, this pipeline watches over your fleet telemetry and turns it into insights.*
+
 ---
 
 ## Table of Contents
@@ -332,6 +334,8 @@ See [data/README_data_sources.md](data/README_data_sources.md) for a plan to gat
 ## Contributing
 
 Contributions are welcome. Areas: adapters for nuScenes/KITTI, ROS2 bag-to-Parquet scripts, NIM prompt templates, benchmark results on different GPU configurations.
+
+*Repo maintainers: see [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) for description, tags, and pathways to grow visibility.*
 
 ---
 
