@@ -1,5 +1,9 @@
 # H.E.I.M.D.A.L.L
 
+<p align="center">
+  <img src="docs/assets/images/heimdall_logo.png" alt="Heimdall" width="180" />
+</p>
+
 **Heroically Excessive Inference Methodology (for) Data Analytics (on) Large Loads**
 
 A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet telemetry into natural-language insights via GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
