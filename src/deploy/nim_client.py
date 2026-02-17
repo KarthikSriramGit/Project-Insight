@@ -20,7 +20,7 @@ def chat_completion(
     stream: bool = False,
 ) -> dict[str, Any]:
     """
-    Call NIM chat completions endpoint. Course 1 pattern.
+    Call NIM chat completions endpoint.
 
     Args:
         base_url: NIM base URL (e.g. http://localhost:8000 when port-forwarded).

@@ -26,7 +26,7 @@ def load_telemetry(
     """
     Load telemetry from Parquet or CSV with GPU acceleration when available.
 
-    When cuDF is available and use_cudf is True, enables UVM spill (Course 3 pattern)
+    When cuDF is available and use_cudf is True, enables UVM spill
     so datasets larger than GPU memory can be loaded. Data spills to CPU RAM as needed.
 
     Args:
