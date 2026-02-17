@@ -1,4 +1,4 @@
-# H.E.I.M.D.A.L.L.
+# H.E.I.M.D.A.L.L
 
 **Heroically Excessive Insight for Monitoring Data Across Large Loads**
 
@@ -6,7 +6,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 
 ## Quick Start (Notebooks 01 and 02)
 
-1. Open [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/01_data_ingest_benchmark.ipynb) or [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/02_inference_pipeline.ipynb) in Colab.
+1. Open [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) or [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) in Colab.
 2. **Runtime > Change runtime type > Hardware accelerator: GPU (T4) > Save.**
 3. Run all cells.
 
@@ -70,8 +70,8 @@ gcloud container node-pools create gpupool \
 gcloud container clusters get-credentials nim-demo --zone=$ZONE --project=$PROJECT_ID
 
 # Clone repo and deploy NIM
-git clone -q https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L..git
-cd H.E.I.M.D.A.L.L.
+git clone -q https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L.git
+cd H.E.I.M.D.A.L.L
 bash src/deploy/gke/deploy_nim.sh
 
 # Expose NIM with LoadBalancer
@@ -87,8 +87,8 @@ export ZONE="us-central1-a"
 export NGC_CLI_API_KEY="your-ngc-api-key"
 gcloud config set project $PROJECT_ID
 gcloud container clusters get-credentials nim-demo --zone=$ZONE --project=$PROJECT_ID
-git clone -q https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L..git
-cd H.E.I.M.D.A.L.L.
+git clone -q https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L.git
+cd H.E.I.M.D.A.L.L
 bash src/deploy/gke/deploy_nim.sh
 kubectl patch svc my-nim-nim-llm -n nim -p '{"spec": {"type": "LoadBalancer"}}'
 kubectl get svc -n nim
@@ -112,7 +112,7 @@ kubectl get svc -n nim
 
 ### Step 6: Run notebook 03 on Colab
 
-1. Open [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/03_query_telemetry.ipynb) in Colab
+1. Open [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/03_query_telemetry.ipynb) in Colab
 2. Store your NIM URL securely using **Colab Secrets**:
    - Click the **key icon** (Secrets) in the left sidebar
    - Add: Name = `NIM_BASE_URL`, Value = `http://YOUR_EXTERNAL_IP:8000`
@@ -169,10 +169,10 @@ gcloud container clusters delete nim-demo --zone=$ZONE --project=$PROJECT_ID --q
 
 | Notebook | Description |
 |----------|-------------|
-| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark (GPU recommended) |
-| [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, Gemma 2 2B local inference, latency plots (GPU + HF token) |
-| [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline: retrieve data, NIM summarization, latency plots (requires NIM on GKE) |
-| [04 Compare Local vs NIM](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L./blob/main/notebooks/04_compare_local_vs_nim.ipynb) | Runs same queries on both; side-by-side latency, response length, answers |
+| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark (GPU recommended) |
+| [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, Gemma 2 2B local inference, latency plots (GPU + HF token) |
+| [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline: retrieve data, NIM summarization, latency plots (requires NIM on GKE) |
+| [04 Compare Local vs NIM](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/04_compare_local_vs_nim.ipynb) | Runs same queries on both; side-by-side latency, response length, answers |
 
 ## Architecture
 

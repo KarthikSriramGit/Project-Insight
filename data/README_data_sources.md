@@ -1,11 +1,11 @@
 # Plan for Gathering Real Telemetry Data
 
-This document outlines sources and procedures for obtaining real robotics and autonomous vehicle telemetry to use with H.E.I.M.D.A.L.L.. The pipeline supports Parquet and CSV formats matching the telemetry schema (IMU, LiDAR, CAN, GPS, camera).
+This document outlines sources and procedures for obtaining real robotics and autonomous vehicle telemetry to use with H.E.I.M.D.A.L.L. The pipeline supports Parquet and CSV formats matching the telemetry schema (IMU, LiDAR, CAN, GPS, camera).
 
 ## Open Datasets
 
 ### nuScenes
-CAN bus, LiDAR, camera, IMU from real autonomous vehicles. Requires conversion to the H.E.I.M.D.A.L.L. schema (timestamp_ns, vehicle_id, sensor_type, and sensor-specific columns). Download from https://www.nuscenes.org/
+CAN bus, LiDAR, camera, IMU from real autonomous vehicles. Requires conversion to the H.E.I.M.D.A.L.L schema (timestamp_ns, vehicle_id, sensor_type, and sensor-specific columns). Download from https://www.nuscenes.org/
 
 ### KITTI
 LiDAR, camera, GPS/IMU from real driving. Raw and derived formats. https://www.cvlibs.net/datasets/kitti/
