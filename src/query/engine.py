@@ -68,15 +68,34 @@ class TelemetryQueryEngine:
         else:
             pdf = df
 
+        parts = []
+
+        # Per-vehicle aggregation when vehicle_id present (answers "each vehicle" queries)
+        if "vehicle_id" in pdf.columns:
+            numeric = pdf.select_dtypes(include=["number"]).columns
+            # Exclude timestamp_ns (nanoseconds) to avoid huge numbers confusing the model
+            agg_cols = [c for c in numeric if c != "timestamp_ns" and c in pdf.columns]
+            if agg_cols:
+                try:
+                    per_vehicle = pdf.groupby("vehicle_id", observed=True)[agg_cols].mean()
+                    per_vehicle_str = per_vehicle.to_string()
+                    parts.append(
+                        f"Per-vehicle averages ({len(per_vehicle)} vehicles):\n{per_vehicle_str}"
+                    )
+                except Exception:
+                    pass
+
         # Build summary statistics for numeric columns
         desc = pdf.describe(include="all")
         stats_str = f"Summary statistics ({len(pdf):,} total rows):\n{desc.to_string()}"
+        parts.append(stats_str)
 
         # Sample rows
         subset = pdf.head(n)
         rows_str = f"\nSample rows (first {min(n, len(pdf))}):\n{subset.to_string(max_rows=n)}"
+        parts.append(rows_str)
 
-        return stats_str + rows_str
+        return "\n\n".join(parts)
 
     def retrieve(
         self,
