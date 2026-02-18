@@ -50,7 +50,7 @@ H.E.I.M.D.A.L.L addresses this. You load your fleet telemetry into the pipeline,
 
 | To run… | You need |
 |--------|----------|
-| **Notebook 01** (Data Ingest) | Colab account, GPU runtime (T4 recommended) |
+| **Notebook 01** (Data Ingest) | Colab account, GPU runtime (L4/T4 recommended) |
 | **Notebook 02** (Local Inference) | Colab + GPU + [Hugging Face token](https://huggingface.co/settings/tokens) (for Gemma 2) |
 | **Notebook 03** (Full Pipeline) | Colab + GCP account (billing) + NGC API key + NIM on GKE |
 
