@@ -342,7 +342,7 @@ If you see `Quota 'NVIDIA_L4_GPUS' exceeded. Limit: 1.0 in region us-central1`:
    - Click **Edit quotas** (top of page)
    - Enter the new limit (e.g. `2` if you want one more)
    - Add a short justification (e.g. "Need additional L4 for Colab Enterprise data analytics workloads")
-   - Click **Submit**. Google typically reviews within 1–2 business days.
+   - Click **Submit**. Google typically reviews instantly.
 3. **Try another region:** Create the runtime template in a different region (e.g. `us-east1`, `europe-west1`) where you may have quota. See [L4 availability](https://cloud.google.com/compute/docs/gpus/regions-zones).
 4. **Use T4 instead:** Create a template with machine type `n1-standard-4` and **Attach GPU: NVIDIA Tesla T4** (1). T4 works with cuDF; the notebook runs unchanged. Then import and connect as usual.
 
