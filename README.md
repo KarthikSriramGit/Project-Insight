@@ -1,3 +1,5 @@
+<div align="center">
+
 # H.E.I.M.D.A.L.L
 
 <p align="center">
@@ -15,6 +17,8 @@
 A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet telemetry into natural-language insights via GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
 
 *Named after Heimdall, the Norse guardian who sees and hears everything. Like him, this pipeline watches over your fleet telemetry and turns it into insights.*
+
+</div>
 
 ---
 
