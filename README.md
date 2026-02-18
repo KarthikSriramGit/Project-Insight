@@ -296,7 +296,11 @@ Benchmark results from running the notebooks on Colab with a T4 GPU (notebooks 0
 | cudf.pandas | filter    | ~0.02    | ~0.2        |
 | cudf.pandas | sort      | ~0.03    | ~0.2        |
 
+The benchmark produces a single figure with **3 plots** (time comparison, memory comparison, cuDF speedup) and a **summary table**.
+
 ![pandas vs cuDF vs cudf.pandas benchmark](docs/assets/01_benchmark_pandas_vs_cudf.png)
+
+*Run notebook 01 to regenerate this figure; it is saved to `docs/assets/01_benchmark_pandas_vs_cudf.png`.*
 
 **Takeaway:** cuDF gives ~5× faster load and ~10–13× faster groupby/sort, with negligible host memory (data stays in GPU VRAM via UVM spill). **cudf.pandas** achieves similar GPU performance using the same pandas API—zero code change required. Use cuDF for explicit control, cudf.pandas to accelerate existing pandas code.
 
