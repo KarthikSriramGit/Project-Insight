@@ -2,11 +2,22 @@
 Inference pipeline: preprocessing, batching, forward pass, decoding, postprocessing.
 
 Tokenization with padding, attention mask, greedy decoding (logits[:, -1, :].argmax), batch_decode.
+Supports config-driven batch sizes, warmup, and optional TTFT capture.
 """
 
+import time
 from typing import Any, Optional
 
 import torch
+
+
+def _get_inference_config() -> dict:
+    """Load inference section from pipeline config if available."""
+    try:
+        from ..config import get_inference_config
+        return get_inference_config()
+    except Exception:
+        return {}
 
 
 class InferencePipeline:
@@ -14,6 +25,7 @@ class InferencePipeline:
     End-to-end inference pipeline for telemetry query generation.
 
     Pipeline: tokenize -> pad/batch -> forward pass -> decode -> detokenize.
+    When given a list of prompts, batches them per model.generate() for better GPU utilization.
     """
 
     def __init__(
@@ -22,11 +34,15 @@ class InferencePipeline:
         tokenizer: Any,
         device: str = "cuda",
         max_new_tokens: int = 128,
+        batch_size: Optional[int] = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
-        self.max_new_tokens = max_new_tokens
+        cfg = _get_inference_config()
+        self.max_new_tokens = cfg.get("max_new_tokens", max_new_tokens)
+        batch_sizes = cfg.get("batch_sizes", [1]) if cfg else [1]
+        self._batch_size = batch_size if batch_size is not None else batch_sizes[0]
 
     def _tokenize(
         self,
@@ -64,8 +80,8 @@ class InferencePipeline:
         max_new_tokens: int,
     ) -> torch.Tensor:
         """
-        Greedy decoding loop.
-        next_id = out.logits[:, -1, :].argmax(dim=-1)
+        Greedy decoding loop (no KV cache). Kept for debug/education only.
+        For production use model.generate() via generate().
         """
         generated = input_ids.clone()
         mask = attention_mask.clone()
@@ -95,10 +111,9 @@ class InferencePipeline:
     ) -> list[str]:
         """
         Full pipeline: tokenize, pad, generate, detokenize.
+        Batches prompts in chunks of self._batch_size for better GPU utilization.
 
         Uses model.generate() with KV caching for memory-efficient inference.
-        The manual _greedy_decode method is kept above for educational reference
-        (Course 2: showing the greedy decoding loop step by step).
 
         Args:
             prompts: List of text prompts.
@@ -108,17 +123,65 @@ class InferencePipeline:
             List of generated text strings.
         """
         max_tok = max_new_tokens if max_new_tokens is not None else self.max_new_tokens
-        enc = self._tokenize(prompts)
-        prompt_len = enc["input_ids"].shape[1]
+        all_outputs: list[str] = []
+        batch_size = max(1, self._batch_size)
 
-        with torch.inference_mode():
-            generated = self.model.generate(
-                input_ids=enc["input_ids"],
-                attention_mask=enc["attention_mask"],
-                max_new_tokens=max_tok,
-                do_sample=False,
-            )
+        for i in range(0, len(prompts), batch_size):
+            batch = prompts[i : i + batch_size]
+            enc = self._tokenize(batch)
+            prompt_len = enc["input_ids"].shape[1]
 
-        # Slice off the prompt tokens so output contains only the generated answer
-        new_tokens = generated[:, prompt_len:]
-        return self._postprocess(new_tokens)
+            with torch.inference_mode():
+                generated = self.model.generate(
+                    input_ids=enc["input_ids"],
+                    attention_mask=enc["attention_mask"],
+                    max_new_tokens=max_tok,
+                    do_sample=False,
+                )
+
+            new_tokens = generated[:, prompt_len:]
+            all_outputs.extend(self._postprocess(new_tokens))
+
+        return all_outputs
+
+    def generate_with_timing(
+        self,
+        prompts: list[str],
+        max_new_tokens: Optional[int] = None,
+    ) -> tuple[list[str], list[float], Optional[list[float]]]:
+        """
+        Generate and return outputs plus total latencies per prompt.
+        First-token latencies can be filled by streaming backends (e.g. NIM); here we return None.
+
+        Returns:
+            (outputs, total_latencies_sec, first_token_latencies_sec or None)
+        """
+        max_tok = max_new_tokens if max_new_tokens is not None else self.max_new_tokens
+        all_outputs: list[str] = []
+        total_latencies: list[float] = []
+
+        for p in prompts:
+            enc = self._tokenize([p])
+            prompt_len = enc["input_ids"].shape[1]
+
+            if self.device == "cuda" and torch.cuda.is_available():
+                torch.cuda.synchronize()
+            t0 = time.perf_counter()
+
+            with torch.inference_mode():
+                generated = self.model.generate(
+                    input_ids=enc["input_ids"],
+                    attention_mask=enc["attention_mask"],
+                    max_new_tokens=max_tok,
+                    do_sample=False,
+                )
+
+            if self.device == "cuda" and torch.cuda.is_available():
+                torch.cuda.synchronize()
+            total_latencies.append(time.perf_counter() - t0)
+
+            new_tokens = generated[:, prompt_len:]
+            out = self._postprocess(new_tokens)
+            all_outputs.extend(out)
+
+        return all_outputs, total_latencies, None
