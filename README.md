@@ -4,12 +4,6 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L/actions/workflows/tests.yml"><img src="https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-yellow.svg" alt="License"></a>
-  <a href="https://github.com/KarthikSriramGit"><img src="https://img.shields.io/badge/Follow-%40KarthikSriramGit-blue?logo=github" alt="Follow"></a>
-</p>
-
-<p align="center">
   <img src="./docs/assets/images/heimdall_banner.png" alt="H.E.I.M.D.A.L.L" width="100%" style="max-width: 1200px" />
 </p>
 
