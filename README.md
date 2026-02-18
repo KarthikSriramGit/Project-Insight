@@ -283,24 +283,9 @@ gcloud container clusters delete nim-demo --zone=$ZONE --project=$PROJECT_ID --q
 
 ## Results & Takeaways
 
-Benchmark results from running the notebooks on Colab with a L4 Cloud Runtime on notebooks 01, T4 GPU on notebook 02 and NIM L4 on GKE on notebook 03.
+Benchmark results from running the notebooks on Colab: L4 GPU for notebook 01, T4 GPU for notebook 02, and NIM (L4 on GKE) for notebook 03.
 
 ### 1. Data ingest: pandas vs cuDF vs cudf.pandas (2M rows)
-
-| Backend     | Operation | Time (s) | Memory (MB) |
-|-------------|-----------|----------|-------------|
-| pandas      | load      | 0.88     | 105.5       |
-| pandas      | groupby   | 0.14     | 62.8        |
-| pandas      | filter    | 0.03     | 12.6        |
-| pandas      | sort      | 0.36     | 534.1       |
-| cuDF        | load      | 0.17     | 0.2         |
-| cuDF        | groupby   | 0.01     | 0.03        |
-| cuDF        | filter    | 0.02     | 0.2         |
-| cuDF        | sort      | 0.03     | 0.2         |
-| cudf.pandas | load      | ~0.17    | ~0.2        |
-| cudf.pandas | groupby   | ~0.01    | ~0.03       |
-| cudf.pandas | filter    | ~0.02    | ~0.2        |
-| cudf.pandas | sort      | ~0.03    | ~0.2        |
 
 The benchmark produces a single figure with **3 plots** (time comparison, memory comparison, cuDF speedup) and a **summary table**.
 
