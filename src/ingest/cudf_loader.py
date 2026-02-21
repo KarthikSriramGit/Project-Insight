@@ -22,6 +22,8 @@ def load_telemetry(
     path: Union[str, Path],
     spill: bool = True,
     use_cudf: Optional[bool] = None,
+    columns: Optional[list[str]] = None,
+    chunked: Optional[int] = None,
 ) -> Union["cudf.DataFrame", pd.DataFrame]:
     """
     Load telemetry from Parquet or CSV with GPU acceleration when available.
@@ -33,6 +35,8 @@ def load_telemetry(
         path: Path to Parquet or CSV file.
         spill: Enable Unified Virtual Memory spill (cuDF only). Default True.
         use_cudf: Force cuDF if True, pandas if False. If None, use cuDF when available.
+        columns: Optional list of column names to read (column pruning). Parquet/CSV only.
+        chunked: If set, for CSV read only this many rows; for Parquet has no effect (use columns= to reduce memory).
 
     Returns:
         DataFrame (cuDF or pandas).
@@ -46,17 +50,22 @@ def load_telemetry(
     if use_gpu and CUDF_AVAILABLE:
         cudf.set_option("spill", spill)
         if path.suffix.lower() in (".parquet", ".pq"):
-            df = cudf.read_parquet(path)
+            df = cudf.read_parquet(path, columns=columns)
         elif path.suffix.lower() == ".csv":
-            df = cudf.read_csv(path)
+            if chunked is not None:
+                df = cudf.read_csv(path, nrows=chunked, columns=columns)
+            else:
+                df = cudf.read_csv(path, columns=columns)
         else:
             raise ValueError(f"Unsupported format: {path.suffix}")
         return df
 
     if path.suffix.lower() in (".parquet", ".pq"):
-        return pd.read_parquet(path)
+        return pd.read_parquet(path, columns=columns)
     if path.suffix.lower() == ".csv":
-        return pd.read_csv(path)
+        if chunked is not None:
+            return pd.read_csv(path, nrows=chunked, usecols=columns)
+        return pd.read_csv(path, usecols=columns if columns else None)
     raise ValueError(f"Unsupported format: {path.suffix}")
 
 
@@ -93,11 +102,14 @@ def aggregate_can_stats(
     Aggregate CAN bus statistics per vehicle (or other grouping).
 
     Useful for anomaly detection: max brake pressure, avg speed, etc.
+    Copies only the filtered subset (or needed columns) to avoid full-frame copy.
     """
     if "sensor_type" in df.columns:
-        can_df = df[df["sensor_type"] == "can"].copy()
+        can_df = df.loc[df["sensor_type"] == "can"]
+        # Copy only the subset for aggregation (avoids holding full frame)
+        can_df = can_df.copy()
     else:
-        can_df = df.copy()
+        can_df = df
 
     group_cols = group_cols or ["vehicle_id"]
     group_cols = [c for c in group_cols if c in can_df.columns]

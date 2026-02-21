@@ -7,6 +7,7 @@ Generates millions of rows mimicking real sensor streams: IMU, LiDAR, CAN bus, G
 import argparse
 import os
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -128,15 +129,20 @@ def generate_telemetry(
     vehicle_count: int = 10,
     duration_hours: float = 24.0,
     seed: int = 42,
+    chunk_size: Optional[int] = None,
 ) -> pd.DataFrame:
     """
     Generate fleet telemetry spanning multiple sensor types.
+
+    For large n_rows (e.g. 50M), set chunk_size (e.g. 5_000_000) to generate
+    in chunks and reduce peak host memory.
 
     Args:
         n_rows: Total number of rows across all sensors.
         vehicle_count: Number of vehicle IDs.
         duration_hours: Time span in hours for timestamps.
         seed: Random seed for reproducibility.
+        chunk_size: If set, generate in chunks of this many rows and concat; reduces memory.
 
     Returns:
         DataFrame with unified telemetry schema. Rows are split across
@@ -146,20 +152,41 @@ def generate_telemetry(
     vehicle_ids = [f"V{i:03d}" for i in range(vehicle_count)]
 
     duration_ns = int(duration_hours * 3600 * 1e9)
-    timestamps_ns = np.linspace(0, duration_ns, min(n_rows // 5, 1_000_000)).astype(
-        np.int64
-    )
+    ts_size = min(n_rows // 5, 1_000_000)
+    timestamps_ns = np.linspace(0, duration_ns, ts_size).astype(np.int64)
 
-    n_per_sensor = n_rows // 5
-    dfs = [
-        _generate_imu(n_per_sensor, vehicle_ids, timestamps_ns, rng),
-        _generate_lidar(n_per_sensor, vehicle_ids, timestamps_ns, rng),
-        _generate_can(n_per_sensor, vehicle_ids, timestamps_ns, rng),
-        _generate_gps(n_per_sensor, vehicle_ids, timestamps_ns, rng),
-        _generate_camera(n_rows - 4 * n_per_sensor, vehicle_ids, timestamps_ns, rng),
-    ]
+    if chunk_size is not None and chunk_size > 0 and n_rows > chunk_size:
+        # Chunked generation to reduce peak memory for very large datasets
+        chunks = []
+        remaining = n_rows
+        chunk_seed = seed
+        while remaining > 0:
+            take = min(chunk_size, remaining)
+            chunk_rng = np.random.default_rng(chunk_seed)
+            chunk_seed += 1
+            n_per_sensor = take // 5
+            dfs = [
+                _generate_imu(n_per_sensor, vehicle_ids, timestamps_ns, chunk_rng),
+                _generate_lidar(n_per_sensor, vehicle_ids, timestamps_ns, chunk_rng),
+                _generate_can(n_per_sensor, vehicle_ids, timestamps_ns, chunk_rng),
+                _generate_gps(n_per_sensor, vehicle_ids, timestamps_ns, chunk_rng),
+                _generate_camera(take - 4 * n_per_sensor, vehicle_ids, timestamps_ns, chunk_rng),
+            ]
+            chunk = pd.concat(dfs, ignore_index=True)
+            chunks.append(chunk)
+            remaining -= take
+        combined = pd.concat(chunks, ignore_index=True)
+    else:
+        n_per_sensor = n_rows // 5
+        dfs = [
+            _generate_imu(n_per_sensor, vehicle_ids, timestamps_ns, rng),
+            _generate_lidar(n_per_sensor, vehicle_ids, timestamps_ns, rng),
+            _generate_can(n_per_sensor, vehicle_ids, timestamps_ns, rng),
+            _generate_gps(n_per_sensor, vehicle_ids, timestamps_ns, rng),
+            _generate_camera(n_rows - 4 * n_per_sensor, vehicle_ids, timestamps_ns, rng),
+        ]
+        combined = pd.concat(dfs, ignore_index=True)
 
-    combined = pd.concat(dfs, ignore_index=True)
     combined = combined.sample(frac=1, random_state=seed).reset_index(drop=True)
     combined = combined.sort_values("timestamp_ns").reset_index(drop=True)
 
@@ -211,6 +238,12 @@ def main() -> None:
         help="Random seed",
     )
     parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=None,
+        help="Generate in chunks of this many rows to reduce memory (e.g. 5000000 for 50M)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=str,
         default="data/synthetic",
@@ -232,6 +265,7 @@ def main() -> None:
         vehicle_count=args.vehicles,
         duration_hours=args.hours,
         seed=args.seed,
+        chunk_size=args.chunk_size,
     )
     df = _ensure_full_schema(df)
 
