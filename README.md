@@ -339,7 +339,7 @@ Same queries via Llama 3 8B on NVIDIA NIM (L4 on GKE). Longer answers, higher la
 | **L4 quota exceeded** | See [L4 quota exceeded](#l4-quota-exceeded) below. |
 | **cuDF fails to import** | Ensure you selected a **GPU** runtime (L4 or T4). cuDF requires a GPU. |
 | **"No GPU" or cuDF falls back to CPU** | Runtime → Change runtime type → GPU (L4 or T4) → Save, then restart runtime. |
-| **Out of memory** | Reduce row count in the generate cell (e.g. `ROWS = 500_000` instead of `2_000_000`). |
+| **Out of memory (past UVM spill)** | Reduce row count in the generate cell (e.g. `ROWS = 500_000` instead of `2_000_000`). |
 
 #### L4 quota exceeded
 
